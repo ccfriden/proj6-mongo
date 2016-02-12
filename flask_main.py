@@ -20,10 +20,8 @@ from flask import url_for
 import json
 import logging
 
-# Date handling 
-import arrow # Replacement for datetime, based on moment.js
-import datetime # But we may still need time
-from dateutil import tz  # For interpreting local times
+# Date handling
+import datetime
 
 # Mongo database
 from pymongo import MongoClient
@@ -67,6 +65,45 @@ def create():
     app.logger.debug("Create")
     return flask.render_template('create.html')
 
+@app.route("/_save", methods = ["POST"])
+def save():
+    record = { "type": "dated_memo",
+           "date": request.form["memoDate"],
+           "text": request.form["memoText"]
+          }
+    collection.insert(record)
+    app.logger.debug("Saved Memo")
+    return flask.redirect(url_for("index"))
+
+@app.route("/_update", methods = ["POST"])
+def update():
+    record = { "type": "dated_memo",
+           "date":  request.form["memoDate"],
+           "text": request.form["memoText"]
+          }
+    collection.insert(record)
+    app.logger.debug("Saved Memo")
+    return flask.redirect(url_for("index"))
+
+@app.route("/_delete", methods = ["POST"])
+def delete():
+    record = { "type": "dated_memo",
+           "date":  request.form["memoDate"],
+           "text": request.form["memoText"]
+          }
+    collection.insert(record)
+    app.logger.debug("Saved Memo")
+    return flask.redirect(url_for("index"))
+@app.route("/_clear", methods = ["POST"])
+def clear():
+    collection.drop()
+    app.logger.debug("Cleared Memos")
+    return flask.redirect(url_for("index"))
+
+@app.route("/_edit", methods = ["POST"])
+def edit():
+    app.logger.debug("Edit")
+    return flask.render_template('edit.html')
 
 @app.errorhandler(404)
 def page_not_found(error):
@@ -91,7 +128,7 @@ def page_not_found(error):
 #         return "(bad date)"
 
 @app.template_filter( 'humanize' )
-def humanize_arrow_date( date ):
+def humanize( date ):
     """
     Date is internal UTC ISO format string.
     Output should be "today", "yesterday", "in 5 days", etc.
@@ -99,14 +136,22 @@ def humanize_arrow_date( date ):
     need to catch 'today' as a special case. 
     """
     try:
-        then = arrow.get(date).to('local')
-        now = arrow.utcnow().to('local')
-        if then.date() == now.date():
+        today = datetime.date.today()
+        date = date.date()
+        dateDif = date - today
+
+        if date == today:
             human = "Today"
-        else: 
-            human = then.humanize(now)
-            if human == "in a day":
-                human = "Tomorrow"
+        elif date == datetime.date.today() + datetime.timedelta(days=1):
+            human = "Tomorrow"
+        elif date == datetime.date.today() - datetime.timedelta(days=1):
+            human = "Yesterday"
+        else:
+            # if it is in the future
+            if dateDif.days > 0:
+                human = str(dateDif.days) + " days from now"
+            else:
+                human = str(abs(dateDif.days)) + " days ago"
     except: 
         human = date
     return human
@@ -124,10 +169,11 @@ def get_memos():
     """
     records = [ ]
     for record in collection.find( { "type": "dated_memo" } ):
-        record['date'] = arrow.get(record['date']).isoformat()
+        record['date'] = datetime.datetime.strptime(record['date'], "%m/%d/%Y")
         del record['_id']
         records.append(record)
-    return records 
+    records = sorted(records, key=lambda k: k['date'])
+    return records
 
 
 if __name__ == "__main__":

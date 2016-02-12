@@ -40,20 +40,38 @@
 
 {% if session.memos %}
     {% for memo in session.memos %}
+  <form method="POST" action="/_edit">
   <div class="memo">
   <div class="row">
-  <div class="col-md-2">
-    {{ memo.date | humanize }}
+  <div class="col-md-2 text-left">
+    {{ memo.date | humanize}}
   </div>
-  <div class="col-md-10">
+  <div class="col-md-10 text-left">
     {{ memo.text }}
+  </div>
+  <div class="col-xs-6 text-right">
+    <input type="submit" id="submit" value="Edit" />
   </div>
   </div> <!-- row -->
   </div> <!-- memo -->
+  </form>
   {% endfor %}
 {% else %}
   <p>No memos for you. </p>  
 {% endif %}
+
+<div class="row">
+  <div class="col-xs-6 text-left">
+    <form method="GET" action="/create">
+        <input type="submit" id="submit" value="Add New Memo" />
+    </form>
+  </div>
+  <div class="col-xs-6 text-right">
+    <form method="POST" action="/_clear">
+        <input type="submit" id="delete" value="Delete ALL Memos" />
+    </form>
+  </div>
+</div>
 
  
 

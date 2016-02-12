@@ -47,7 +47,7 @@
 
 <form method="POST" action="/_save">
 <div class="row">
-  <div class="input-group date" id="datepicker" class="input-group date" data-date-format="mm/dd/yyyy">
+  <div class="input-group date" id="datepicker" class="input-group date" data-date-format="mm-dd-yyyy">
     <input name="memoDate" class="form-control" type="text" readonly />
     <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
   </div>
@@ -56,11 +56,17 @@
   </div>
 </div>
 <div class="row">
-  <div class="col-xs-2 text-center">
-        <input type="submit" id="submit" value="Save" />
+  <div class="col-xs-2 text-left">
+      <form method="POST" action="/_update">
+        <input type="submit" id="submit" value="Save Changes" />
+      </form>
   </div>
-</form>
-  <div class="col-xs-2 text-center">
+  <div class="col-xs-2 text-left">
+      <form method="POST" action="/_delete">
+        <input type="submit" id="delete" value="Delete Memo" />
+      </form>
+  </div>
+  <div class="col-xs-2 text-left">
     <form method="GET" action="/index">
         <input type="submit" id="submit" value="Cancel" />
     </form>
