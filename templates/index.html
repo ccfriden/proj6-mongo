@@ -49,6 +49,15 @@
   <div class="col-md-10 text-left">
     {{ memo.text }}
   </div>
+  <div>
+    <input type="hidden" name = "ObjectID" value= "{{ memo._id }}"/>
+  </div>
+  <div>
+    <input type="hidden" name="date" value= "{{ memo.date }}"/>
+  </div>
+  <div>
+    <input type="hidden" name="text" value= "{{ memo.text }}"/>
+  </div>
   <div class="col-xs-6 text-right">
     <input type="submit" id="submit" value="Edit" />
   </div>

@@ -45,24 +45,29 @@
   {% endif %}
 {% endwith %}
 
-<form method="POST" action="/_save">
 <div class="row">
-  <div class="input-group date" id="datepicker" class="input-group date" data-date-format="mm-dd-yyyy">
+  <form method="POST" action="/_update">
+  <div class="input-group date" id="datepicker" class="input-group date" data-date-format="mm/dd/yyyy">
     <input name="memoDate" class="form-control" type="text" readonly />
     <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
   </div>
   <div class="col-md-10">
-    <textarea name="memoText" rows="10" cols="50" placeholder="Write Your Memo Here"></textarea>
+    <textarea name="memoText" rows="10" cols="50">{{ session.memo.text }}</textarea>
   </div>
 </div>
 <div class="row">
+  <div>
+        <input type="hidden" name = "ObjectID" value= "{{ session.memo._id }}"/>
+  </div>
   <div class="col-xs-2 text-left">
-      <form method="POST" action="/_update">
         <input type="submit" id="submit" value="Save Changes" />
       </form>
   </div>
   <div class="col-xs-2 text-left">
       <form method="POST" action="/_delete">
+        <div>
+            <input type="hidden" name = "ObjectID" value= "{{ session.memo._id }}"/>
+        </div>
         <input type="submit" id="delete" value="Delete Memo" />
       </form>
   </div>
@@ -76,9 +81,9 @@
 <script type="text/javascript">
     $(function () {
         $("#datepicker").datepicker({
-            autoclose: true,
-            todayHighlight: true
+            autoclose: true
         }).datepicker('update', new Date());;
+        $("#datepicker").datepicker("setDate", "{{ session.memo.date }}");
     });
 </script>
 

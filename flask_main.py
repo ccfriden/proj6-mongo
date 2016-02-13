@@ -25,6 +25,7 @@ import datetime
 
 # Mongo database
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 
 ###
@@ -77,31 +78,33 @@ def save():
 
 @app.route("/_update", methods = ["POST"])
 def update():
+    memoId = request.form["ObjectID"]
+    collection.remove({"_id": ObjectId(memoId)})
     record = { "type": "dated_memo",
            "date":  request.form["memoDate"],
            "text": request.form["memoText"]
           }
     collection.insert(record)
-    app.logger.debug("Saved Memo")
+    app.logger.debug("Updated Memo")
     return flask.redirect(url_for("index"))
 
 @app.route("/_delete", methods = ["POST"])
 def delete():
-    record = { "type": "dated_memo",
-           "date":  request.form["memoDate"],
-           "text": request.form["memoText"]
-          }
-    collection.insert(record)
-    app.logger.debug("Saved Memo")
+    memoId = request.form["ObjectID"]
+    collection.remove({"_id": ObjectId(memoId)})
+    app.logger.debug("Deleted Memo")
     return flask.redirect(url_for("index"))
 @app.route("/_clear", methods = ["POST"])
 def clear():
     collection.drop()
     app.logger.debug("Cleared Memos")
+
     return flask.redirect(url_for("index"))
 
 @app.route("/_edit", methods = ["POST"])
 def edit():
+    date = datetime.datetime.strptime(request.form["date"], "%Y-%m-%d %H:%M:%S").date()
+    flask.session["memo"] = {"_id": request.form["ObjectID"], "text":  request.form["text"], "date":date.strftime("%m-%d-%Y")}
     app.logger.debug("Edit")
     return flask.render_template('edit.html')
 
@@ -170,7 +173,7 @@ def get_memos():
     records = [ ]
     for record in collection.find( { "type": "dated_memo" } ):
         record['date'] = datetime.datetime.strptime(record['date'], "%m/%d/%Y")
-        del record['_id']
+        record['_id'] = str(record['_id'])
         records.append(record)
     records = sorted(records, key=lambda k: k['date'])
     return records
